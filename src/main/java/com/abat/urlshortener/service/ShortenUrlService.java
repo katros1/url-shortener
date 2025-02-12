@@ -1,12 +1,16 @@
 package com.abat.urlshortener.service;
 
 import com.abat.urlshortener.dtos.ShortenUrlRequestDto;
+import com.abat.urlshortener.dtos.ShortenUrlResponseDto;
 import com.abat.urlshortener.entity.ShortenUrl;
 import com.abat.urlshortener.exceptions.ConflictException;
 import com.abat.urlshortener.exceptions.NotFoundException;
 import com.abat.urlshortener.exceptions.UrlExpiredException;
 import com.abat.urlshortener.repository.ShortenUrlRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -18,6 +22,9 @@ import java.util.List;
 
 @Service
 public class ShortenUrlService {
+
+    @Value("${spring.allowed-origin}")
+    private String allowedOrigin;
 
     private final ShortenUrlRepository shortenUrlRepository;
 
@@ -61,7 +68,7 @@ public class ShortenUrlService {
         return new String(array);
     }
 
-    public ShortenUrl createShortUrl(ShortenUrlRequestDto longUrl, Integer ttl) {
+    public ShortenUrlResponseDto createShortUrl(ShortenUrlRequestDto longUrl, Integer ttl) {
 
         String shortId = (longUrl.getCustomId() != null && !longUrl.getCustomId().isEmpty()) ? longUrl.getCustomId() : generateShortId();
 
@@ -71,13 +78,18 @@ public class ShortenUrlService {
         }
 
         ShortenUrl shortUrl = new ShortenUrl();
+        ShortenUrlResponseDto responseDto = new ShortenUrlResponseDto();
         shortUrl.setId(shortId);
         shortUrl.setUrl(longUrl.getLongUrl());
         shortUrl.setTtl(ttl != null ? LocalDateTime.now().plusHours(ttl) : null);
 
+        BeanUtils.copyProperties(shortUrl, responseDto);
+
+        responseDto.setShortenUrl(allowedOrigin + "/" + shortId);
+
         shortenUrlRepository.save(shortUrl);
         logger.info("Created short URL: {}/{}", "http://localhost:8080", shortId);
-        return shortUrl;
+        return responseDto;
     }
 
     public ShortenUrl getShortUrl(String id) {

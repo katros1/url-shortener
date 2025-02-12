@@ -1,6 +1,7 @@
 package com.abat.urlshortener.controller;
 
 import com.abat.urlshortener.dtos.ShortenUrlRequestDto;
+import com.abat.urlshortener.dtos.ShortenUrlResponseDto;
 import com.abat.urlshortener.entity.ShortenUrl;
 import com.abat.urlshortener.service.ShortenUrlService;
 import com.abat.urlshortener.util.CustomResponse;
@@ -28,10 +29,10 @@ public class ShortenUrlController {
     }
 
     @PostMapping("/api/v1/shorten-url")
-    public ResponseEntity<CustomResponse<ShortenUrl>> shortenUrl(@RequestParam(required = false) Integer ttl,
-                                                                 @RequestBody @Valid ShortenUrlRequestDto longUrl) {
+    public ResponseEntity<CustomResponse<ShortenUrlResponseDto>> shortenUrl(@RequestParam(required = false) Integer ttl,
+                                                                            @RequestBody @Valid ShortenUrlRequestDto longUrl) {
 
-        ShortenUrl shortUrl = shortenUrlService.createShortUrl(longUrl, ttl);
+        ShortenUrlResponseDto shortUrl = shortenUrlService.createShortUrl(longUrl, ttl);
 
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(
                 CustomResponse.successResponse("Short URL created successfully",
