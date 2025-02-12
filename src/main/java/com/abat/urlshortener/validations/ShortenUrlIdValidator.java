@@ -30,19 +30,19 @@ public class ShortenUrlIdValidator implements ConstraintValidator<ValidShortenUr
     @Override
     public void initialize(ValidShortenUrlId constraintAnnotation) {
         rules.add(new ValidationRule(
-                customId -> customId != null && customId.length() >= 6,
+                customId -> customId == null || customId.isEmpty() || customId.length() >= 6,
                 "customId must be at least 6 characters long."
         ));
         rules.add(new ValidationRule(
-                customId -> customId != null && customId.matches(".*[a-zA-Z].*"),
+                customId -> customId == null || customId.isEmpty() || customId.matches(".*[a-zA-Z].*"),
                 "customId must contain letters."
         ));
         rules.add(new ValidationRule(
-                customId -> customId != null && customId.matches(".*\\d.*"),
+                customId -> customId == null || customId.isEmpty() || customId.matches(".*\\d.*"),
                 "customId must contain at least one digit."
         ));
         rules.add(new ValidationRule(
-                customId -> customId != null && !customId.matches(".*\\s.*"),
+                customId -> customId == null || customId.isEmpty() || !customId.matches(".*\\s.*"),
                 "customId cannot contain whitespace."
         ));
     }
